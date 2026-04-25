@@ -1,0 +1,92 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>投稿詳細</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <h3>{{ $post->title }}</h3>
+
+            <a href="{{ route('users.show', $post->user->id) }}"><strong>投稿者：</strong>{{ $post->user->name ?? '不明' }}</a>
+            <p><strong>留学地域：</strong>{{ $post->address }}</p>
+            <p><strong>投稿日：</strong>{{ $post->created_at->format('Y/m/d') }}</p>
+
+            <p><strong>内容：</strong></p>
+            <p>{!! nl2br(e($post->body)) !!}</p>
+
+            @if($post->image)
+                <div class="mb-3">
+                    <p><strong>画像：</strong></p>
+                    <img src="{{ asset('storage/' . $post->image) }}" alt="投稿画像" class="img-fluid">
+                </div>
+            @endif
+
+            <div style="margin-top: 20px;">
+                <a href="{{ route('posts.index') }}" class="btn btn-secondary">一覧へ戻る</a>
+                @if(Auth::id() === $post->user_id)
+                    <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-primary">編集</a>
+
+                    <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('削除しますか？')">削除</button>
+                    </form>
+                @else
+                    <a href="{{ route('reports.create', $post->id) }}" class="btn btn-warning">違反報告</a>
+                @endif
+                @if(Auth::check())
+                    @if(Auth::user()->bookmarkPosts->contains($post->id))
+                        <form action="{{ route('bookmarks.destroy', $post->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-warning">ブックマーク解除</button>
+                        </form>
+                    @else
+                        <form action="{{ route('bookmarks.store', $post->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-warning">ブックマーク</button>
+                        </form>
+                    @endif
+                @endif
+            </div>
+            
+            <hr class="my-4">
+
+            <h4>コメント投稿</h4>
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('comments.store', $post->id) }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <textarea name="body" class="form-control" rows="4">{{ old('body') }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">コメントする</button>
+            </form>
+
+            <h4>コメント一覧</h4>
+
+            @forelse($post->comments as $comment)
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p><strong>{{ $comment->user->name ?? '不明' }}</strong></p>
+                        <p>{{ $comment->created_at->format('Y-m-d') }}</p>
+                        <p>{!! nl2br(e($comment->body)) !!}</p>
+                    </div>
+                </div>
+            @empty
+                <p>まだコメントはありません</p>
+            @endforelse
+
+        </div>
+    </div>
+</div>
+@endsection
