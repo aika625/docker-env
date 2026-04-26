@@ -17,6 +17,7 @@ class PostController extends Controller
     {
         $keyword = $request->keyword;
         $start_date = $request->start_date;
+        $end_date = $request->end_date;
 
         $query = Post::with('user')->where('status', 1)->latest();
 
@@ -28,13 +29,13 @@ class PostController extends Controller
             });
         }
 
-        if(!empty($start_date)) {
-            $query->whereDate('created_at', '>=', $start_date);
+        if($start_date && $end_date) {
+            $query->whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date);
         }
 
         $posts = $query->get();
 
-        return view('posts.index', compact('posts', 'keyword', 'start_date'));
+        return view('posts.index', compact('posts', 'keyword', 'start_date', 'end_date'));
     }
 
     /**

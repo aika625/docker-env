@@ -25,6 +25,7 @@
                 <th>メール</th>
                 <th>状態</th>
                 <th>操作</th>
+                <th>投稿非表示数</th>
             </tr>
         </thead>
         <tbody>
@@ -41,11 +42,12 @@
                 <td>
                     <form action="{{ route('admin.users.toggle', $user->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn btn-warning btn-sm">
+                        <button type="submit" class="btn btn-sm {{ $user->status == 1 ? 'btn-warning' : 'btn-success' }}">
                             {{ $user->status == 1 ? '利用停止にする' : '利用再開にする' }}
                         </button>
                     </form>
                 </td>
+                <td>{{ $user->stopped_posts_count }}</td>
             </tr>
             @endforeach
         </tbody>

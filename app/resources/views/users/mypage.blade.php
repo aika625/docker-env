@@ -7,6 +7,15 @@
     <h3>プロフィール</h3>
     <p>ユーザー名：{{ $user->name }}</p>
     <p>メールアドレス：{{ $user->email }}</p>
+    <p>コメント：{{ $user->comment ?? '未登録' }}</p>
+    <div>
+        @if($user->image)
+            <img src="{{ asset('storage/' . $user->image) }}" width="150">
+        @else
+            <p>プロフィール画像は未登録です</p>
+        @endif
+    </div>
+    
     <div>
         <a href="{{ route('user.edit') }}">プロフィール編集・退会</a>
     </div>
@@ -14,7 +23,7 @@
     <div>
         <a href="{{ route('bookmarks.index') }}">ブックマーク一覧</a>
     </div>
-    
+
     <hr>
 
     <h3>過去の投稿一覧</h3>

@@ -25,7 +25,9 @@ class AdminController extends Controller
             abort(403);
         }
 
-        $users = User::where('role', 'user')->latest()->get();
+        $users = User::withCount(['posts as stopped_posts_count' => function($query){
+                $query->where('status', 0);
+        }])->where('role', 'user')->orderBy('stopped_posts_count', 'desc')->get();
         return view('admin.users.index', compact('users'));
     }
 

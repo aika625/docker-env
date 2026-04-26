@@ -51,7 +51,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('user.edit')->with('success', '更新しました');
+        return redirect()->route('mypage')->with('success', '更新しました');
     }
 
     public function index()

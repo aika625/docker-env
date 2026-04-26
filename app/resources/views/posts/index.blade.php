@@ -9,7 +9,9 @@
             <input type="text" name="keyword" class="form-control" value="{{ old('keyword', $keyword ?? '') }}" placeholder="タイトル・内容・地域で検索">
         </div>
         <div class="form-group mb-2">
-            <input type="date" name="start_date" class="form-control" value="{{ $start_date ?? '' }}">
+            <input type="date" name="start_date" value="{{ request('start_date') }}">
+            <span>〜</span>
+            <input type="date" name="end_date" value="{{ request('end_date') }}">
         </div>
         <button type="submit" class="btn btn-primary mt-2">検索</button>
     </form>
@@ -33,14 +35,6 @@
             @endif
             <a href="{{ route('posts.show', $post->id) }}" class="btn btn-info">詳細</a>            
 
-            @if(Auth::id() === $post->user_id)
-            <a href="{{ route('posts.edit', $post->id)}}" class="btn btn-success btn-sm">編集</a>
-            <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('削除してもよろしいですか？')">削除</button>
-            </form>
-            @endif
         </div>
     </div>
     @endforeach

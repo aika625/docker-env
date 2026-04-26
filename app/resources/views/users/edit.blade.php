@@ -4,7 +4,7 @@
 <div class="container">
     <h1>ユーザー情報</h1>
 
-    <form action="{{ route('user.update') }}" method="POST" enctype="multipart/form-date">
+    <form action="{{ route('user.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div>
@@ -23,7 +23,11 @@
         </div>
 
         <div>
-            <img src="{{ asset('storage/' . $user->image) }}" width="100">
+            @if($user->image)
+                <img src="{{ asset('storage/' . $user->image) }}" width="100">
+            @else
+                <p>プロフィール画像は未登録です</p>
+            @endif
         </div>
 
         <div>

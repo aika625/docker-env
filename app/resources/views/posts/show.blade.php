@@ -35,19 +35,20 @@
                 @else
                     <a href="{{ route('reports.create', $post->id) }}" class="btn btn-warning">違反報告</a>
                 @endif
+
                 @if(Auth::check())
-                    @if(Auth::user()->bookmarkPosts->contains($post->id))
-                        <form action="{{ route('bookmarks.destroy', $post->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-warning">ブックマーク解除</button>
-                        </form>
-                    @else
-                        <form action="{{ route('bookmarks.store', $post->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-warning">ブックマーク</button>
-                        </form>
-                    @endif
+                    @php
+                        $isBookmarked = Auth::user()->bookmarkPosts->contains($post->id);
+                    @endphp
+
+                    <button id="bookmark-button" class="btn {{ $isBookmarked ? 'btn-warning' : 'btn-outline-warning' }}"
+                    data-bookmarked="{{ $isBookmarked ? '1' : '0' }}"
+                    data-store-url="{{ route('bookmarks.store', $post->id) }}"
+                    data-destroy-url="{{ route('bookmarks.destroy', $post->id) }}">
+                    {{ $isBookmarked ? 'ブックマーク解除' : 'ブックマーク' }}
+                    </button>
+
+                    <p id="bookmark-message" class="mt-2"></p>
                 @endif
             </div>
             
@@ -90,3 +91,45 @@
     </div>
 </div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const button = document.getElementById('bookmark-button');
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener('click', function () {
+        const isBookmarked = button.dataset.bookmarked === '1';
+        const url = isBookmarked ? button.dataset.destroyUrl : button.dataset.storeUrl;
+        const method = isBookmarked ? 'DELETE' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.bookmarked === true) {
+                button.textContent = 'ブックマーク解除';
+                button.className = 'btn btn-warning';
+                button.dataset.bookmarked = '1';
+            } else {
+                button.textContent = 'ブックマーク';
+                button.className = 'btn btn-outline-warning';
+                button.dataset.bookmarked = '0';
+            }
+
+            document.getElementById('bookmark-message').textContent = data.message;
+        })
+        .catch(error => {
+            document.getElementById('bookmark-message').textContent = '処理に失敗しました';
+        });
+    });
+});
+</script>
