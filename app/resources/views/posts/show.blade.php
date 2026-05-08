@@ -4,9 +4,9 @@
 <div class="container">
     <h1>投稿詳細</h1>
 
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-body">
-            <h3>{{ $post->title }}</h3>
+            <h2 class="mb-3">{{ $post->title }}</h2>
 
             <a href="{{ route('users.show', $post->user->id) }}"><strong>投稿者：</strong>{{ $post->user->name ?? '不明' }}</a>
             <p><strong>留学地域：</strong>{{ $post->address }}</p>
@@ -65,32 +65,38 @@
                 </div>
             @endif
 
-            <form action="{{ route('comments.store', $post->id) }}" method="POST">
+            <form id="comment-form" action="{{ route('comments.store', $post->id) }}" method="POST">
                 @csrf
                 <div class="form-group">
-                    <textarea name="body" class="form-control" rows="4">{{ old('body') }}</textarea>
+                    <textarea name="body" id="comment-body" class="form-control" rows="4">{{ old('body') }}</textarea>
                 </div>
                 <button type="submit" class="btn btn-primary mt-2">コメントする</button>
             </form>
 
-            <h4>コメント一覧</h4>
+            <h4 class="mt-4 mt-3">コメント一覧</h4>
 
+            <div id="comment-list">
             @forelse($post->comments as $comment)
-                <div class="card mb-3">
+                <div class="card mb-3 shadow-sm">
                     <div class="card-body">
-                        <p><strong>{{ $comment->user->name ?? '不明' }}</strong></p>
-                        <p>{{ $comment->created_at->format('Y-m-d') }}</p>
-                        <p>{!! nl2br(e($comment->body)) !!}</p>
+                        <p class="mb-1">
+                            <strong>{{ $comment->user->name ?? '不明' }}</strong>
+                            <span class="text-muted small">
+                                / {{ $comment->created_at->format('Y-m-d') }}
+                            </span>
+                        </p>
+                        <p class="mt-2 mb-0">
+                            {!! nl2br(e($comment->body)) !!}
+                        </p>
                     </div>
                 </div>
             @empty
                 <p>まだコメントはありません</p>
             @endforelse
+            </div>
 
         </div>
     </div>
-</div>
-@endsection
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -132,4 +138,42 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+document.getElementById('comment-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const body = document.getElementById('comment-body').value;
+    const token = document.querySelector('input[name="_token"]').value;
+
+    fetch(this.action, {
+        method:'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+        },
+        body: JSON.stringify({ body:body })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const commentHTML = `
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <p class="mb-1">
+                    <strong>${data.user_name}</strong>
+                    <span class="text-muted small">
+                        / ${data.created_at}
+                    </span>
+                </p>
+                <p class="mt-2 mb-0">${data.body}</p>
+            </div>
+        </div>
+        `;
+
+        document.getElementById('comment-list').insertAdjacentHTML('afterbegin', commentHTML);
+
+        document.getElementById('comment-body').value = '';
+    });
+});
 </script>
+</div>
+@endsection
+

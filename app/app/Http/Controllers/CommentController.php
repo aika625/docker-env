@@ -17,12 +17,16 @@ class CommentController extends Controller
         $request->validate([
             'body' => 'required|max:255',
         ]);
-        Comment::create([
+        $comment = Comment::create([
             'user_id' => Auth::id(),
             'post_id' => $postId,
             'body' => $request->body,
         ]);
 
-        return redirect()->route('posts.show', $postId);
+        return response()->json([
+            'user_name' => Auth::user()->name,
+            'body' => nl2br(e($comment->body)),
+            'created_at' => $comment->created_at->format('Y-m-d')
+        ]);
     }
 }

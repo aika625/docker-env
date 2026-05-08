@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    <table class="table">
+    <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th>ID</th>
@@ -36,7 +36,11 @@
                 <td>{{ $user->email }}</td>
 
                 <td>
-                    {{ $user->status == 1 ? '利用中' : '利用停止' }}
+                    @if($user->status == 1)
+                        <span class="badge badge-success">利用中</span>
+                    @else
+                        <span class="badge badge-warning">利用停止</span>
+                    @endif
                 </td>
                 
                 <td>

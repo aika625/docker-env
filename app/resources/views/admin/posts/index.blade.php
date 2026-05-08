@@ -10,7 +10,7 @@
         </div>
     @endif
 
-    <table class="table">
+    <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th>ID</th>
@@ -28,12 +28,12 @@
                 <td>{{ $post->id }}</td>
                 <td>{{ $post->user->name ?? '不明' }}</td>
                 <td>{{ $post->title }}</td>
-                <td>{{ $post->created_at }}</td>
+                <td>{{ $post->created_at->format('Y-m-d') }}</td>
                 <td>
                     @if($post->status == 1)
-                        表示中
+                        <span class="badge badge-success">表示中</span>
                     @else
-                        非表示
+                        <span class="badge badge-warning">非表示</span>
                     @endif
                 </td> 
                 <td>
